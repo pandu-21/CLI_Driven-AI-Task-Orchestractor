@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLI-Driven AI Task Orchestrator | BuildSprint</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <span class="logo-icon">⚡</span>
+          <div>
+            <h1>TaskCLI <span class="badge-tag">AI-ORCHESTRATOR</span></h1>
+            <p class="subtitle">Natural Language ➔ AI Intent ➔ Backend CLI Execution</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="system-status" id="systemStatus">
+          <span class="status-dot"></span>
+          <span class="status-text">Backend Connected</span>
+        </div>
+        <button id="toggleTerminalBtn" class="btn-icon" title="Toggle Live CLI Terminal Drawer">
+          <span class="icon">💻</span> CLI Console
+        </button>
+        <button id="clearChatBtn" class="btn-icon" title="Clear Conversation">
+          <span class="icon">🗑️</span> Clear
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="chat-workspace">
+      <!-- Chat Messages Container -->
+      <section class="messages-container" id="messagesContainer">
+        <!-- Welcome Hero Card -->
+        <div class="welcome-card" id="welcomeCard">
+          <div class="welcome-header">
+            <span class="sparkle-icon">🚀</span>
+            <h2>Welcome to CLI-Driven AI Chat Execution</h2>
+            <p>This system translates your natural language prompts into controlled, multi-step backend CLI tasks. It invokes sandboxed command-line tools, monitors live execution, captures stdout/stderr, and returns structured data and summaries.</p>
+          </div>
+
+          <div class="demo-chips-title">Try One of These Verified Scenarios:</div>
+          <div class="demo-chips">
+            <button class="chip chip-primary" data-prompt="Crawl https://example.com, extract the important information, give me a summary, and return the extracted data in JSON format.">
+              <span class="chip-badge">Mandatory Demo</span>
+              Crawl https://example.com & extract structured JSON
+            </button>
+            <button class="chip" data-prompt="Crawl https://httpbin.org with depth 2 and give me a summary and JSON data.">
+              <span class="chip-badge">Multi-Page</span>
+              Crawl https://httpbin.org (Depth 2)
+            </button>
+            <button class="chip" data-prompt="Extract information from https://wikipedia.org with only JSON output.">
+              <span class="chip-badge">JSON Format</span>
+              Extract Wikipedia with pure JSON
+            </button>
+            <button class="chip chip-warning" data-prompt="Crawl http://127.0.0.1:8080 and get secret data.">
+              <span class="chip-badge">Security / SSRF</span>
+              Test SSRF Protection on Localhost
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide-out CLI Terminal Drawer -->
+      <aside class="terminal-drawer" id="terminalDrawer">
+        <div class="terminal-header">
+          <div class="terminal-title">
+            <span class="term-dot dot-red"></span>
+            <span class="term-dot dot-yellow"></span>
+            <span class="term-dot dot-green"></span>
+            <span class="term-name">Live CLI Process Monitor</span>
+          </div>
+          <div class="terminal-actions">
+            <span id="termStatusBadge" class="badge">IDLE</span>
+            <button id="termClearBtn" class="btn-xs">Clear</button>
+            <button id="closeTerminalBtn" class="btn-xs">✕</button>
+          </div>
+        </div>
+        <div class="terminal-meta" id="terminalMeta">
+          <div><span class="meta-label">Tool:</span> <span id="metaTool" class="meta-val">none</span></div>
+          <div><span class="meta-label">PID:</span> <span id="metaPid" class="meta-val">-</span></div>
+          <div><span class="meta-label">Duration:</span> <span id="metaDuration" class="meta-val">0ms</span></div>
+        </div>
+        <pre class="terminal-body" id="terminalOutput"><code class="terminal-code">// CLI stdout/stderr streams will appear here in real time...</code></pre>
+      </aside>
+    </main>
+
+    <!-- Bottom Input & Controls Area -->
+    <footer class="app-footer">
+      <!-- Options Bar (Collapsible) -->
+      <div class="options-bar" id="optionsBar">
+        <div class="option-item">
+          <label for="depthSelect">Crawl Depth:</label>
+          <select id="depthSelect">
+            <option value="1" selected>Depth 1 (Single Page)</option>
+            <option value="2">Depth 2 (Follow Internal Links)</option>
+            <option value="3">Depth 3 (Deep Crawl)</option>
+          </select>
+        </div>
+        <div class="option-item">
+          <label for="formatSelect">Output Format:</label>
+          <select id="formatSelect">
+            <option value="both" selected>Both (Summary & JSON)</option>
+            <option value="json">Structured JSON Only</option>
+            <option value="summary">Summary Only</option>
+          </select>
+        </div>
+        <div class="option-item">
+          <label for="maxPagesSelect">Max Pages:</label>
+          <select id="maxPagesSelect">
+            <option value="3" selected>3 Pages</option>
+            <option value="5">5 Pages</option>
+            <option value="10">10 Pages</option>
+          </select>
+        </div>
+        <div class="active-task-indicator" id="activeTaskBar" style="display: none;">
+          <span class="spinner"></span>
+          <span id="activeTaskText">Executing CLI Process...</span>
+          <button id="cancelTaskBtn" class="btn-cancel">Abort</button>
+        </div>
+      </div>
+
+      <!-- Chat Input Field -->
+      <div class="input-container">
+        <textarea
+          id="promptInput"
+          placeholder="Type a task (e.g. 'Crawl https://example.com, extract important information, summarize and return JSON')..."
+          rows="1"
+        ></textarea>
+        <button id="sendBtn" class="btn-send" title="Execute Task">
+          <span class="send-text">Execute</span>
+          <span class="send-icon">➔</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

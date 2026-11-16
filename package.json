@@ -1,0 +1,26 @@
+{
+  "name": "buildsprint-cli-ai-chat",
+  "version": "2.0.0",
+  "description": "CLI-Driven AI Chat Execution for Complex Tasks - BuildSprint Round 2 Prototype",
+  "main": "src/server.js",
+  "bin": {
+    "crawler-cli": "./bin/crawler-cli.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "cli": "node bin/crawler-cli.js",
+    "test": "node test/test-e2e.js",
+    "test:all": "node test/run-all.js",
+    "test:orchestrator": "node test/test-orchestrator.js"
+  },
+  "keywords": [
+    "ai-agent",
+    "cli-orchestration",
+    "web-crawler",
+    "structured-json",
+    "buildsprint"
+  ],
+  "author": "BuildSprint Participant",
+  "license": "MIT"
+}
